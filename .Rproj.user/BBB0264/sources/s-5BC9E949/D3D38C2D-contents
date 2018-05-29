@@ -1,0 +1,186 @@
+#資料匯入
+library(jsonlite)
+library(readr)
+c103<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=25f64d5125016dcd6aed42e50c972ed0")
+s103<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=a6d1469f39fe41fb81dbfc373aef3331")
+c104<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=4d3e9b37b7b0fd3aa18a388cdbc77996")
+s104<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=8baeae81cba74f35cf0bb1333d3d99f5")
+c105<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=19bedf88cf46999da12513de755c33c6")
+s105<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=1a485383cf9995da679c3798ab4fd681")
+c106<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=50e3370f9f8794f2054c0c82a2ed8c91")
+s106<-fromJSON("https://quality.data.gov.tw/dq_download_json.php?nid=6289&md5_url=883e2ab4d5357f70bea9ac44a47d05cc")
+peopleamountcount105 <- read_csv("C:/Users/yian/Desktop/peopleamountcount105.csv", 
+                                 locale = locale(encoding = "BIG5"))
+Student_RPT_07 <- read_csv("C:/Users/yian/Desktop/Student_RPT_07.csv", 
+                           locale = locale(encoding = "BIG5"))
+#peopleamountcount105,Student_RPT_07已在excel整理好資料表才匯入
+#1.103資料整理
+library(dplyr)
+for(i in 3:11){
+  c103[,i]<-
+  as.numeric(c103[,i])
+}
+newc103<-c103%>%
+  mutate("total"=rowSums(c103[3:11],na.rm = FALSE,dims = 1))%>%
+  select(c("國別","total"))
+#1.104資料整理
+for(i in 3:11){
+  c104[,i]<-
+    as.numeric(c104[,i])
+}
+newc104<-c104%>%
+  mutate("total"=rowSums(c104[3:11],na.rm = FALSE,dims = 1))%>%
+  select(c("國別","total"))
+#1.105資料整理
+for(i in 3:11){
+  c105[,i]<-
+    as.numeric(c105[,i])
+}
+newc105<-c105%>%
+  mutate("total"=rowSums(c105[3:11],na.rm = FALSE,dims = 1))%>%
+  select(c("國別","total"))
+#1.106資料整理
+for(i in 3:11){
+  c106[,i]<-
+    as.numeric(c106[,i])
+}
+newc106<-c106%>%
+  mutate("total"=rowSums(c106[3:11],na.rm = FALSE,dims = 1))%>%
+  select(c("國別","total"))
+#join國別以及每年度境外生的加總
+finaldf<-full_join(newc103,newc104,by="國別")
+finaldf<-full_join(finaldf,newc105,by="國別")
+finaldf<-full_join(finaldf,newc106,by="國別")
+colnames(finaldf)<-c("country","t103","t104","t105","t106")
+finaldf[is.na(finaldf)]<-0
+#新增一個欄位加總103-106年的人數並排序
+finaldf<-finaldf%>%
+  mutate("alltotal"=rowSums(finaldf[2:5],na.rm = FALSE,dims = 1))%>%
+  arrange(desc(alltotal))
+#最多人來台灣念書的國家
+finaldf[1,]
+#前10名
+finaldf[1:10,]
+
+
+#整理103-106年資料
+s103$`非學位生-大陸研修生`<- gsub("…","0",s103$`非學位生-大陸研修生`)
+s104$`非學位生-大陸研修生`<- gsub("…","0",s104$`非學位生-大陸研修生`)
+for(n in 4:12){
+  s103[,n]<-
+    as.numeric(s103[,n])
+}
+news103<-s103%>%
+  mutate("total"=rowSums(s103[4:12],na.rm = FALSE,dims = 1))%>%
+  select(c("學校名稱","total"))
+#104
+for(n in 4:12){
+  s104[,n]<-
+    as.numeric(s104[,n])
+}
+news104<-s104%>%
+  mutate("total"=rowSums(s104[4:12],na.rm = FALSE,dims = 1))%>%
+  select(c("學校名稱","total"))%>%
+  filter(學校名稱!="無法區分校別")
+#105
+for(n in 4:12){
+  s105[,n]<-
+    as.numeric(s105[,n])
+}
+news105<-s105%>%
+  mutate("total"=rowSums(s105[4:12],na.rm = FALSE,dims = 1))%>%
+  select(c("學校名稱","total"))%>%
+  filter(學校名稱!="無法區分校別")
+#106
+for(n in 4:12){
+  s106[,n]<-
+    as.numeric(s106[,n])
+}
+news106<-s106%>%
+  mutate("total"=rowSums(s106[4:12],na.rm = FALSE,dims = 1))%>%
+  select(c("學校名稱","total"))%>%
+  filter(學校名稱!="無法區分校別")
+#join學校名稱以及每年度境外生的加總
+sfinal<-full_join(news103,news104,by="學校名稱")
+sfinal<-full_join(sfinal,news105,by="學校名稱")
+sfinal<-full_join(sfinal,news106,by="學校名稱")
+colnames(sfinal)<-c("school","t103","t104","t105","t106")
+#新增一個欄位加總103-106年的人數並排序
+sfinal[is.na(sfinal)]<-0
+sfinal<-sfinal%>%
+  mutate("alltotal"=rowSums(sfinal[2:5],na.rm = FALSE,dims = 1))%>%
+  arrange(desc(alltotal))
+#最多境外生讀的學校
+sfinal[1,]
+#前十名境外生就讀的學校
+sfinal[1:10,]
+
+#圖
+library(ggplot2)
+ggplot()+
+  geom_bar(data = finaldf
+           ,aes(x=country,y=alltotal)
+           ,stat = 'identity'
+           ,width = 0.5
+           ,position = position_dodge(5))+
+  geom_text()+
+  theme(axis.text.x = element_text(angle = 70, hjust = 1))
+
+
+#第四題
+student103<-Student_RPT_07%>%
+  filter(`學年度`==103)%>%
+  select("學校名稱","對方學校(機構)國別(地區)","本國學生出國進修、交流人數(小計)")
+colnames(student103)<-c("school","country","total")
+sc103<-student103%>%
+  group_by(country)%>%
+  summarise(total103=sum(total))
+ss103<-student103%>%
+  group_by(school)%>%
+  summarise(total103=sum(total))
+student104<-Student_RPT_07%>%
+  filter(`學年度`==104)%>%
+  select("學校名稱","對方學校(機構)國別(地區)","本國學生出國進修、交流人數(小計)")
+colnames(student104)<-c("school","country","total")
+sc104<-student104%>%
+  group_by(country)%>%
+  summarise(total104=sum(total))
+ss104<-student104%>%
+  group_by(school)%>%
+  summarise(total104=sum(total))
+studentc103104<-full_join(sc103,sc104,by="country")
+studentc103104[is.na(studentc103104)]<-0
+studentc103104<-studentc103104%>%
+  mutate("alltotal"=rowSums(studentc103104[2:3],na.rm = FALSE,dims = 1))%>%
+  arrange(desc(alltotal))
+students103104<-full_join(ss103,ss104,by="school")
+students103104[is.na(students103104)]<-0
+students103104<-students103104%>%
+  mutate("alltotal"=rowSums(students103104[2:3],na.rm = FALSE,dims = 1))%>%
+  arrange(desc(alltotal))
+studentc103104[1,]
+studentc103104[1:10,]
+students103104[1,]
+students103104[1:10,]
+
+#圖
+ggplot()+
+  geom_bar(data = students103104
+           ,aes(x=school,y=alltotal)
+           ,stat = 'identity'
+           ,width = 0.5
+           ,position = position_dodge(5))+
+  geom_text()+
+  theme(axis.text.x = element_text(angle = 70, hjust = 1))
+
+
+#第七題
+colnames(peopleamountcount105)<-c("states","country","amount")
+peopleamountcount105<-peopleamountcount105%>%
+  select("country","amount")%>%
+  arrange(desc(amount))
+peopleamountcount105[1,]
+peopleamountcount105[1:10,]
+
+
+

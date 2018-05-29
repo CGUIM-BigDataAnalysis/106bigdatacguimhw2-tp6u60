@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1526965857110.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D3D38C2D",
+    "lastKnownWriteTime" : 1526952792,
+    "last_content_update" : 1526952792,
+    "path" : "~/GitHub/106bigdatacguimhw2-tp6u60/hw2.R",
+    "project_path" : "hw2.R",
+    "properties" : {
+        "cursorPosition" : "11,71",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
